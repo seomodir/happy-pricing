@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد قیمت‌گذاری پمپفا (Happy)</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css">
+    <style>
+        :root {
+            --bg-main: #0F172A;
+            --bg-card: #1E293B;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --brand-happy: #EAB308;
+            --accent-teal: #0D9488;
+            --border-color: rgba(255, 255, 255, 0.08);
+            
+            --brand-leo: #3B82F6;
+            --brand-green: #10B981;
+            --brand-fancy: #8B5CF6;
+            --brand-ebara: #EF4444;
+            --brand-shimge: #06B6D4;
+            --brand-taifu: #F97316;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Vazir, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); padding-bottom: 50px; }
+        header { background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%); padding: 30px 20px; text-align: center; border-bottom: 4px solid var(--brand-happy); }
+        .container { max-width: 1400px; margin: 30px auto; padding: 0 20px; }
+        
+        .control-panel {
+            background: var(--bg-card); border-radius: 16px; padding: 25px;
+            display: flex; gap: 20px; align-items: center; justify-content: center; flex-wrap: wrap;
+            margin-bottom: 30px; border: 1px solid var(--border-color);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        .input-group label { font-weight: 700; color: var(--brand-happy); font-size: 0.95rem; }
+        .input-group input { 
+            padding: 12px 20px; border-radius: 8px; border: 1px solid var(--border-color); 
+            background: rgba(255,255,255,0.05); color: white; font-size: 1.2rem; font-weight: bold; text-align: center;
+            width: 200px; transition: all 0.3s;
+        }
+        .input-group input:focus { outline: none; border-color: var(--brand-happy); }
+        .btn {
+            padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; border: none;
+            background: var(--accent-teal); color: white; font-size: 1rem; transition: all 0.2s;
+            height: 52px; margin-top: 29px;
+        }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(13,148,136,0.4); }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--bg-card); padding: 20px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .stat-val { font-size: 1.8rem; font-weight: 900; margin-top: 10px; color: var(--brand-happy); }
+        
+        table { width: 100%; border-collapse: collapse; text-align: right; background: var(--bg-card); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        th, td { padding: 15px; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+        th { background: rgba(255,255,255,0.02); color: var(--brand-happy); font-weight: bold; font-size: 0.95rem; }
+        tr:hover { background: rgba(255,255,255,0.03); }
+        
+        .badge { padding: 6px 10px; border-radius: 6px; font-size: 0.85rem; font-weight: bold; display: inline-block; }
+        .status-low { background: rgba(16,185,129,0.15); color: #10B981; border: 1px solid rgba(16,185,129,0.3); }
+        .status-high { background: rgba(239,68,68,0.15); color: #EF4444; border: 1px solid rgba(239,68,68,0.3); }
+        .status-mid { background: rgba(59,130,246,0.15); color: #3B82F6; border: 1px solid rgba(59,130,246,0.3); }
+        .status-none { background: rgba(148,163,184,0.15); color: #94A3B8; border: 1px solid rgba(148,163,184,0.3); }
+        
+        .btn-sources {
+            background: transparent; border: 1px solid var(--brand-happy); color: var(--brand-happy);
+            padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; transition: 0.2s;
+        }
+        .btn-sources:hover { background: var(--brand-happy); color: #000; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: var(--bg-card); width: 90%; max-width: 800px; max-height: 85vh; border-radius: 12px; border: 1px solid var(--border-color); overflow: hidden; display: flex; flex-direction: column; }
+        .modal-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 20px; overflow-y: auto; }
+        .modal-close { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+        .source-item { background: rgba(255,255,255,0.02); margin-bottom: 15px; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .source-brand { font-size: 1.1rem; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .model-list { list-style: none; padding-right: 15px; }
+        .model-list li { margin-bottom: 8px; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 5px; }
+        .model-list a { color: var(--brand-leo); text-decoration: none; }
+        .model-list a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 style="font-size:2.2rem; font-weight:900; color: #FFFFFF;">داشبورد دینامیک قیمت‌گذاری هپی</h1>
+        <p style="color:var(--text-muted); margin-top:10px; font-size: 1.1rem;">دریافت اتوماتیک روزانه قیمت دقیق رقبا از گیت‌هاب</p>
+    </header>
+
+    <div class="container">
+        
+        <div class="control-panel">
+            <div class="input-group">
+                <label>قیمت تتر (تومان):</label>
+                <input type="number" id="usdRate" value="60500" step="100">
+            </div>
+            <button class="btn" onclick="calculatePrices()">اعمال و محاسبه</button>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div style="color:var(--text-muted); font-weight:bold;">تعداد محصولات (Happy)</div>
+                <div class="stat-val" id="totalProducts">0</div>
+            </div>
+            <div class="stat-card">
+                <div style="color:var(--text-muted); font-weight:bold;">میانگین رقابت‌پذیری</div>
+                <div class="stat-val" id="avgCompetitiveness" style="color: white;">-</div>
+            </div>
+            <div class="stat-card" style="border-bottom: 4px solid var(--brand-green);">
+                <div style="color:var(--text-muted); font-weight:bold;">کالاهای ارزان‌تر از بازار</div>
+                <div class="stat-val" id="cheaperCount" style="color: var(--brand-green);">0</div>
+            </div>
+            <div class="stat-card" style="border-bottom: 4px solid var(--brand-ebara);">
+                <div style="color:var(--text-muted); font-weight:bold;">کالاهای گران‌تر از بازار</div>
+                <div class="stat-val" id="expensiveCount" style="color: var(--brand-ebara);">0</div>
+            </div>
+        </div>
+
+        <div style="overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <table id="productsTable">
+                <thead>
+                    <tr>
+                        <th>کد کالا</th>
+                        <th>نام محصول (Happy)</th>
+                        <th>دسته‌بندی بازار</th>
+                        <th>قیمت ارزی</th>
+                        <th>قیمت ریالی شما</th>
+                        <th>متوسط بازار رقبا</th>
+                        <th>وضعیت رقابت</th>
+                        <th>منابع استخراج شده</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody">
+                    <tr><td colspan="8" style="text-align:center;">در حال دریافت اطلاعات از سرور گیت‌هاب...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal for showing sources -->
+    <div class="modal-overlay" id="sourceModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle" style="color: var(--brand-happy);">منابع استخراج قیمت</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let products = [];
+        let marketData = {};
+        
+        // Exact mapping from product names to their core categories
+        const product_to_core = {
+            "ACm158": "Centrifugal 1 HP", "CM100/01": "Centrifugal 1 HP", "HCm158-5": "Centrifugal 1 HP",
+            "ACm170": "Centrifugal 1.5 HP",
+            "QB60-A": "Peripheral 0.5 HP", "HQBm60": "Peripheral 0.5 HP", "IDB35": "Peripheral 0.5 HP",
+            "QB80-A": "Peripheral 1 HP", "HQBm80": "Peripheral 1 HP", "IDB50": "Peripheral 1 HP",
+            "AJm-3CH": "Jet 1.5 HP", "HJ-10M-A": "Jet 1 HP", "HJ-10H-A": "Jet 1 HP",
+            "2ACm25/130": "Twin Impeller 1 HP", "2ACm25/140M": "Twin Impeller 1.5 HP", "2ACm25/160B": "Twin Impeller 2 HP",
+            "2HIC-500": "Inverter 0.5 kW", "2HIC-600": "Inverter 0.5 kW",
+            "HFC-1501": "Pool 2 HP", "HFC-2201": "Pool 3 HP",
+            "QDX1.5-16-0.37FA-3": "Sump 1inch 16m", "QDX1.5-16-0.37FA-3-F": "Sump 1inch 16m",
+            "HAD-750": "Sewage 2inch 15m", "HTD-1500": "Sewage 2inch 15m"
+        };
+        
+        function formatNum(num) {
+            if (num === null || num === undefined || isNaN(num)) return "-";
+            return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "٫").replace(/[0-9]/g, c => String.fromCharCode(c.charCodeAt(0) + 1728));
+        }
+        
+        function getBrandColor(brand) {
+            if (brand === 'لئو') return 'var(--brand-leo)';
+            if (brand === 'گرین') return 'var(--brand-green)';
+            if (brand === 'فنسی') return 'var(--brand-fancy)';
+            if (brand === 'ابارا') return 'var(--brand-ebara)';
+            if (brand === 'شیمجه') return 'var(--brand-shimge)';
+            if (brand === 'تایفو') return 'var(--brand-taifu)';
+            return 'var(--text-muted)';
+        }
+        
+        async function initDashboard() {
+            try {
+                // In GitHub pages, this will fetch from the current directory
+                const resProducts = await fetch('products.json');
+                const allProducts = await resProducts.json();
+                
+                // Filter only Happy brand
+                products = allProducts.filter(p => {
+                    const b = p['نام برند'] || '';
+                    return b.toLowerCase() === 'happy' || b === 'هپی';
+                });
+                
+                const resMarket = await fetch('market_data.json');
+                marketData = await resMarket.json();
+                
+                calculatePrices();
+            } catch (err) {
+                console.error("Error loading data:", err);
+                document.getElementById('tbody').innerHTML = '<tr><td colspan="8" style="color:red;text-align:center;">خطا در دریافت اطلاعات دیتابیس!</td></tr>';
+            }
+        }
+        
+        function getMarketStats(coreKey) {
+            if (!coreKey || !marketData[coreKey]) return null;
+            const brandsObj = marketData[coreKey];
+            let prices = [];
+            for (let b in brandsObj) {
+                if (brandsObj[b].price > 0) prices.push(brandsObj[b].price);
+            }
+            if (prices.length === 0) return null;
+            return {
+                name: coreKey,
+                market_avg: prices.reduce((a, b) => a + b, 0) / prices.length,
+                brand_details: brandsObj
+            };
+        }
+        
+        window.showSources = function(productIndex) {
+            const p = products[productIndex];
+            const coreKey = getCoreKey(p);
+            const cStat = getMarketStats(coreKey);
+            
+            document.getElementById('modalTitle').innerText = `منابع قیمت برای: ${coreKey}`;
+            const body = document.getElementById('modalBody');
+            body.innerHTML = '';
+            
+            if (!cStat || !cStat.brand_details) {
+                body.innerHTML = '<p>هیچ منبع معتبری یافت نشد.</p>';
+                document.getElementById('sourceModal').style.display = 'flex';
+                return;
+            }
+            
+            for (const brand in cStat.brand_details) {
+                const m = cStat.brand_details[brand];
+                if (m.price <= 0) continue;
+                
+                const color = getBrandColor(brand);
+                body.innerHTML += `
+                <div class="source-item">
+                    <div class="source-brand" style="color: ${color};">
+                        ${brand} 
+                    </div>
+                    <ul class="model-list">
+                        <li>
+                            <span>${m.model} <br><span style="color:var(--text-muted);font-size:0.8rem;">${formatNum(m.price)} تومان</span></span>
+                            <a href="${m.url}" target="_blank">مشاهده در ترب ↗</a>
+                        </li>
+                    </ul>
+                </div>`;
+            }
+            document.getElementById('sourceModal').style.display = 'flex';
+        }
+        
+        function closeModal() { document.getElementById('sourceModal').style.display = 'none'; }
+        
+        function getCoreKey(p) {
+            let core_key = null;
+            const eng_name = p["نام انگلیسی محصول"] || "";
+            if (eng_name) core_key = product_to_core[eng_name.split(' ')[0]];
+            if (!core_key) {
+                const parts = p["نام محصول"].split(' ');
+                core_key = product_to_core[parts[parts.length - 1]];
+            }
+            return core_key;
+        }
+        
+        window.calculatePrices = function() {
+            const usdRate = parseFloat(document.getElementById('usdRate').value);
+            const tbody = document.getElementById('tbody');
+            tbody.innerHTML = '';
+            
+            let cheaper = 0; let expensive = 0; let totalRatio = 0; let comparedCount = 0;
+            
+            products.forEach((p, index) => {
+                const isUsdAvailable = (p.usd_price > 0);
+                const finalIrr = isUsdAvailable ? (p.usd_price * usdRate) : 0;
+                
+                const coreKey = getCoreKey(p);
+                const cStat = getMarketStats(coreKey);
+                
+                let marketAvgStr = "-";
+                let statusHtml = '<span class="badge status-none">بدون داده بازار</span>';
+                let catName = coreKey || "-";
+                let sourcesBtn = "-";
+                
+                if (cStat && cStat.market_avg > 0) {
+                    marketAvgStr = formatNum(cStat.market_avg) + " تومان";
+                    sourcesBtn = `<button class="btn-sources" onclick="showSources(${index})">مشاهده منابع</button>`;
+                    
+                    if (isUsdAvailable) {
+                        const ratio = finalIrr / cStat.market_avg;
+                        totalRatio += ratio;
+                        comparedCount++;
+                        let diffPercent = Math.round(Math.abs(1 - ratio) * 100);
+                        
+                        if (ratio < 0.95) {
+                            statusHtml = `<span class="badge status-low">↓ ${formatNum(diffPercent)}٪ ارزان‌تر</span>`;
+                            cheaper++;
+                        } else if (ratio > 1.05) {
+                            statusHtml = `<span class="badge status-high">↑ ${formatNum(diffPercent)}٪ گران‌تر</span>`;
+                            expensive++;
+                        } else {
+                            statusHtml = `<span class="badge status-mid">● متعادل</span>`;
+                        }
+                    } else {
+                        statusHtml = '<span class="badge status-none">نیاز به قیمت ارزی</span>';
+                    }
+                }
+                
+                let usdDisplay = isUsdAvailable ? `$${p.usd_price}` : '<span style="color:var(--text-muted);font-size:0.8rem;">نامشخص</span>';
+                let finalIrrDisplay = isUsdAvailable ? `${formatNum(finalIrr)} <span style="font-size:0.8rem;color:var(--text-muted)">تومان</span>` : '<span style="color:var(--text-muted);font-size:0.8rem;">نامشخص</span>';
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="color:var(--text-muted); font-size: 0.9rem;">${formatNum(p['ID محصول'])}</td>
+                    <td style="font-weight:900; font-size:0.85rem; max-width:250px; white-space:normal;">${p['نام محصول']}</td>
+                    <td style="font-size:0.85rem; color: #94A3B8;">${catName}</td>
+                    <td style="color:var(--brand-green); font-weight:bold; dir:ltr; text-align:right;">${usdDisplay}</td>
+                    <td style="color:var(--brand-happy); font-weight:900; font-size:1.15rem;">${finalIrrDisplay}</td>
+                    <td style="font-weight:bold;">${marketAvgStr}</td>
+                    <td>${statusHtml}</td>
+                    <td>${sourcesBtn}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            document.getElementById('totalProducts').innerText = formatNum(products.length);
+            document.getElementById('cheaperCount').innerText = formatNum(cheaper);
+            document.getElementById('expensiveCount').innerText = formatNum(expensive);
+            
+            if (comparedCount > 0) {
+                const avgPercent = Math.round((totalRatio / comparedCount) * 100);
+                document.getElementById('avgCompetitiveness').innerText = formatNum(avgPercent) + "٪";
+            }
+        }
+        
+        window.onload = initDashboard;
+    </script>
+</body>
+</html>
